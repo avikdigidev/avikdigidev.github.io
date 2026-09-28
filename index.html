@@ -7,11 +7,13 @@
 <meta name="description" content="Portfolio of Prakash Shelke, Senior Backend Engineer with 9 years in Java, Spring Boot, Kafka, microservices, and GCP. Based in Bhilai, India.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
+<div class="network-pattern" aria-hidden="true"></div>
+<div class="cursor-spotlight" id="cursorSpotlight" aria-hidden="true"></div>
 <div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
 
 <header class="site-header" id="siteHeader">
@@ -41,16 +43,29 @@
 
 <main id="main">
   <section class="hero" id="top" aria-labelledby="heroTitle">
+    <!-- Backdrop: verbatim excerpt from own repo saga-choreography-pattern-example,
+         order-service/src/main/java/com/avikdigidev/saga/order/service/OrderStatusPublisher.java
+         (package and imports omitted). Full file: https://github.com/avikdigidev/saga-choreography-pattern-example/blob/master/order-service/src/main/java/com/avikdigidev/saga/order/service/OrderStatusPublisher.java -->
+    <pre class="hero-code" aria-hidden="true"><code>@Service
+public class OrderStatusPublisher {
+    @Autowired
+    private Sinks.Many&lt;OrderEvent&gt; orderSinks;
+
+    public void publishOrderEvent(OrderRequestDTO orderRequestDTO, OrderStatus orderStatus){
+        OrderEvent orderEvent = new OrderEvent(orderRequestDTO,orderStatus);
+        orderSinks.tryEmitNext(orderEvent);
+    }
+}</code></pre>
     <div class="hero-grid">
       <div class="hero-copy">
         <p class="eyebrow">Senior Backend Engineer, Bhilai India</p>
-        <h1 id="heroTitle">Prakash Shelke</h1>
+        <h1 id="heroTitle" class="gradient-text">Prakash Shelke</h1>
         <p class="hero-role">9 years building Java backends: Spring Boot, Kafka, microservices on GCP.</p>
         <p class="hero-sub">Currently improving GraphQL, Spring WebFlux, and Drools. I write notes at prakashok.co.in.</p>
         <div class="hero-ctas">
-          <a class="btn btn-primary" href="#experience">View experience</a>
-          <a class="btn btn-ghost" href="https://github.com/avikdigidev" target="_blank" rel="noopener">View GitHub</a>
-          <a class="btn btn-ghost" href="mailto:email@prakashok.co.in">Send email</a>
+          <a class="btn btn-primary magnetic-btn" href="#experience">View experience</a>
+          <a class="btn btn-ghost magnetic-btn" href="https://github.com/avikdigidev" target="_blank" rel="noopener">View GitHub</a>
+          <a class="btn btn-ghost magnetic-btn" href="mailto:email@prakashok.co.in">Send email</a>
         </div>
       </div>
       <div class="hero-diagram" id="heroDiagram" aria-hidden="true">
@@ -216,6 +231,15 @@
         <h3>saga-choreography-pattern-example</h3>
         <p>Example of the saga choreography pattern across services in Java.</p>
       </a>
+    </div>
+    <div class="activity-card reveal">
+      <p class="mono-date">Live from GitHub</p>
+      <h3>Contribution activity</h3>
+      <a class="activity-link" href="https://github.com/avikdigidev" target="_blank" rel="noopener" aria-label="Open the GitHub profile of avikdigidev">
+        <img class="activity-chart" id="activityChart" src="https://ghchart.rshah.org/00A3CC/avikdigidev" data-src-light="https://ghchart.rshah.org/00A3CC/avikdigidev" data-src-dark="https://ghchart.rshah.org/00D4FF/avikdigidev" alt="Contribution chart for GitHub user avikdigidev, rendered live from GitHub data" loading="lazy">
+      </a>
+      <p class="chart-fallback" id="chartFallback" hidden>Chart needs network. <a href="https://github.com/avikdigidev" target="_blank" rel="noopener">View activity on GitHub</a>.</p>
+      <p class="activity-note">Live data from <a href="https://github.com/avikdigidev" target="_blank" rel="noopener">github.com/avikdigidev</a>, drawn in the ember accent for each theme.</p>
     </div>
   </section>
 

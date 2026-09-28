@@ -20,6 +20,11 @@
     toggle.setAttribute("aria-pressed", String(dark));
     toggle.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
     toggle.querySelector(".theme-label").textContent = dark ? "Light" : "Dark";
+    var chart = document.getElementById("activityChart");
+    if (chart) {
+      var chartSrc = theme === "dark" ? chart.getAttribute("data-src-dark") : chart.getAttribute("data-src-light");
+      if (chartSrc && chart.getAttribute("src") !== chartSrc) chart.setAttribute("src", chartSrc);
+    }
     try { localStorage.setItem("ps-theme", theme); } catch (e) { /* private mode, theme still applies */ }
   }
   applyTheme(currentTheme());
@@ -47,6 +52,30 @@
       menuToggle.focus();
     }
   });
+
+  /* Header elevation on scroll: shadow signals page position. */
+  var header = document.getElementById("siteHeader");
+  var headTick = false;
+  function updateHeader() {
+    headTick = false;
+    header.classList.toggle("scrolled", window.scrollY > 8);
+  }
+  window.addEventListener("scroll", function () {
+    if (headTick) return;
+    headTick = true;
+    window.requestAnimationFrame(updateHeader);
+  }, { passive: true });
+  updateHeader();
+
+  /* Activity chart fallback: the profile link stays when the image cannot load. */
+  var chartImg = document.getElementById("activityChart");
+  var chartFallback = document.getElementById("chartFallback");
+  if (chartImg && chartFallback) {
+    chartImg.addEventListener("error", function () {
+      chartImg.hidden = true;
+      chartFallback.hidden = false;
+    });
+  }
 
   /* Scroll reveal: once per element, skipped under reduced motion. */
   var revealEls = document.querySelectorAll(".reveal");
@@ -95,43 +124,74 @@
     }, { passive: true });
   }
 
-  /* Card tilt: max 6deg, desktop fine pointer, no reduced motion. */
+  /* Card tilt: max 8deg, desktop fine pointer, no reduced motion. */
   if (!reduceMotion && finePointer) {
-    document.querySelectorAll(".project-card").forEach(function (card) {
+    document.querySelectorAll(".project-card, .skill-group, .timeline-card").forEach(function (card) {
       card.addEventListener("pointermove", function (e) {
         var r = card.getBoundingClientRect();
         var dx = (e.clientX - r.left) / r.width - 0.5;
         var dy = (e.clientY - r.top) / r.height - 0.5;
-        card.style.transform = "perspective(700px) rotateX(" + (-dy * 6).toFixed(2) + "deg) rotateY(" + (dx * 6).toFixed(2) + "deg)";
+        card.style.transform = "perspective(800px) rotateX(" + (-dy * 8).toFixed(2) + "deg) rotateY(" + (dx * 8).toFixed(2) + "deg) translateY(-4px)";
       });
       card.addEventListener("pointerleave", function () { card.style.transform = ""; });
     });
   }
 
+  /* Magnetic button effect: desktop fine pointer, no reduced motion. */
+  if (!reduceMotion && finePointer) {
+    document.querySelectorAll(".magnetic-btn").forEach(function (btn) {
+      btn.addEventListener("mousemove", function (e) {
+        var r = btn.getBoundingClientRect();
+        var dx = (e.clientX - r.left - r.width / 2) * 0.3;
+        var dy = (e.clientY - r.top - r.height / 2) * 0.3;
+        btn.style.transform = "translate(" + dx + "px, " + dy + "px) scale(1.05)";
+      });
+      btn.addEventListener("mouseleave", function () { btn.style.transform = ""; });
+    });
+  }
+
   /* Cursor ring: desktop fine pointer, no reduced motion, hidden for keyboard. */
   var ring = document.getElementById("cursorRing");
+  var spotlight = document.getElementById("cursorSpotlight");
   if (!reduceMotion && finePointer && ring && window.matchMedia("(hover: hover)").matches) {
     var ringX = 0, ringY = 0, targetX = 0, targetY = 0, ringOn = false;
+    var spotX = 0, spotY = 0, spotTargetX = 0, spotTargetY = 0, spotOn = false;
+    
     document.addEventListener("pointermove", function (e) {
       if (e.pointerType !== "mouse") return;
       targetX = e.clientX; targetY = e.clientY;
+      spotTargetX = e.clientX; spotTargetY = e.clientY;
       if (!ringOn) { ringOn = true; ring.style.opacity = "1"; }
+      if (!spotOn) { spotOn = true; spotlight.classList.add("active"); }
     }, { passive: true });
+    
     document.addEventListener("keydown", function () {
       ringOn = false; ring.style.opacity = "0";
+      spotOn = false; spotlight.classList.remove("active");
     });
+    
     (function follow() {
-      ringX += (targetX - ringX) * 0.25;
-      ringY += (targetY - ringY) * 0.25;
+      ringX += (targetX - ringX) * 0.2;
+      ringY += (targetY - ringY) * 0.2;
       ring.style.transform = "translate(" + ringX + "px," + ringY + "px)";
+      
+      spotX += (spotTargetX - spotX) * 0.15;
+      spotY += (spotTargetY - spotY) * 0.15;
+      spotlight.style.left = spotX + "px";
+      spotlight.style.top = spotY + "px";
+      
       requestAnimationFrame(follow);
     })();
-    document.querySelectorAll("a, button").forEach(function (el) {
+    
+    document.querySelectorAll("a, button, .project-card, .skill-group, .timeline-card").forEach(function (el) {
       el.addEventListener("mouseenter", function () { ring.classList.add("ring-grow"); });
       el.addEventListener("mouseleave", function () { ring.classList.remove("ring-grow"); });
     });
   } else if (ring) {
     ring.style.display = "none";
+  }
+  if (spotlight && (reduceMotion || !finePointer || !window.matchMedia("(hover: hover)").matches)) {
+    spotlight.style.display = "none";
   }
 
   /* Footer year. */
